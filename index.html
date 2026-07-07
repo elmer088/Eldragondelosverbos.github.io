@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Dragón de los Verbos — Duelo Arcano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Nunito:ital,wght@0,400;0,600;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     AUDIO — coloca la ruta de tus archivos en cada src=""
+     Usa siempre barras normales "/" (no "\") y sin espacios al inicio.
+     ============================================================ -->
+<!-- COLOCA AQUI LA MUSICA DE MENU (loop) -->
+<audio id="music-menu" src="audios/guilhermebernardes-caves-of-dawn-10376.mp3" loop preload="auto"></audio>
+<!-- COLOCA AQUI LA MUSICA DE BATALLA (loop) -->
+<audio id="music-battle" src="audios/Final Fantasy 2 Battle Theme.mp3" loop preload="auto"></audio>
+<!-- COLOCA AQUI LA MUSICA DE FURIA (loop) -->
+<audio id="music-rage" src="audios/psychronic-mischief-mayhem-411367.mp3" loop preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE CLIC (debe ser un sonido CORTO, no una cancion) -->
+<audio id="sfx-click" src="audios\Blip11.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE RESPUESTA CORRECTA / HECHIZO -->
+<audio id="sfx-correct" src="audios/Boom.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE GOLPE CRITICO -->
+<audio id="sfx-crit" src="audios/ataque critico.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE RESPUESTA INCORRECTA / ATAQUE DEL DRAGON -->
+<audio id="sfx-wrong" src="audios/ataque dragon.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DEL COMODIN -->
+<audio id="sfx-comodin" src="audios\Video Project 5.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DEL ESCUDO -->
+<audio id="sfx-shield" src="audios/escudo.wav" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DEL HECHIZO ESPECIAL (CARGA ARCANA) -->
+<audio id="sfx-special" src="audios\rescopicsound-elemental-magic-spell-impact-outgoing-228342.mp3" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE VICTORIA -->
+<audio id="sfx-victoria" src="audios\u_it78ck90s3-orchestral-win-331233.mp3" preload="auto"></audio>
+<!-- COLOCA AQUI EL SFX DE DERROTA -->
+<audio id="sfx-derrota" src="audios\alphix-game-over-417465.mp3" preload="auto"></audio>
+
+<!-- ============ FONDO 2D EN CAPAS (parallax) ============ -->
+<div id="scene">
+  <div class="layer sky"></div>
+  <div class="layer mist mist-a"></div>
+  <div class="layer mountains"></div>
+  <div class="layer mist mist-b"></div>
+  <div class="layer ground"></div>
+  <div class="layer motes" id="motes"></div>
+</div>
+
+<!-- Botones globales -->
+<button id="btn-home" class="glass-btn corner-home" title="Volver al inicio">◄ Inicio</button>
+<button id="btn-mute" class="glass-btn corner-mute" title="Silenciar / Activar sonido">🔊</button>
+
+<!-- ============ CINEMATICA (comodines y hechizo especial) ============ -->
+<div id="cine" class="cine">
+  <div class="cine-burst"></div>
+  <div class="cine-sigil"></div>
+  <div class="cine-body">
+    <div class="cine-icon" id="cine-icon">✦</div>
+    <div class="cine-title" id="cine-title"></div>
+    <div class="cine-desc" id="cine-desc"></div>
+  </div>
+</div>
+<div id="flash" class="flash"></div>
+
+<!-- ============ TEMPLATE: DRAGON ILUSTRADO ============ -->
+<template id="tpl-dragon">
+  <svg class="dragon" viewBox="0 0 240 214" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1">
+        <stop class="body-1" offset="0" stop-color="#6f42c8"/>
+        <stop class="body-2" offset="1" stop-color="#1e0e3a"/>
+      </linearGradient>
+      <linearGradient id="gWing" x1="0" y1="0" x2="1" y2="1">
+        <stop class="wing-1" offset="0" stop-color="#7a34c0"/>
+        <stop class="wing-2" offset="1" stop-color="#240a3c"/>
+      </linearGradient>
+      <linearGradient id="gBelly" x1="0" y1="0" x2="0" y2="1">
+        <stop class="belly-1" offset="0" stop-color="#b295e0"/>
+        <stop class="belly-2" offset="1" stop-color="#4a3078"/>
+      </linearGradient>
+      <linearGradient id="gHorn" x1="0" y1="0" x2="0" y2="1">
+        <stop class="horn-1" offset="0" stop-color="#e8dcc0"/>
+        <stop class="horn-2" offset="1" stop-color="#9c8452"/>
+      </linearGradient>
+      <radialGradient id="gEye" cx="0.5" cy="0.4" r="0.7">
+        <stop class="eye-1" offset="0" stop-color="#fff0a0"/>
+        <stop class="eye-2" offset="1" stop-color="#ff4a1e"/>
+      </radialGradient>
+      <radialGradient id="gMaw" cx="0.5" cy="0.25" r="0.9">
+        <stop offset="0" stop-color="#5a0c14"/>
+        <stop offset="1" stop-color="#1a060a"/>
+      </radialGradient>
+      <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.4"/></filter>
+    </defs>
+
+    <!-- ALAS de murcielago desgarradas -->
+    <g class="wings">
+      <g class="wing wing-l">
+        <path d="M92,86 L18,26 Q36,50 12,66 Q34,82 28,100 Q48,106 56,124 Q70,108 92,98 Z" fill="url(#gWing)" stroke="#160722" stroke-width="2"/>
+        <path d="M92,86 L18,26 M92,86 L12,66 M92,86 L28,100 M92,86 L56,124" stroke="#160722" stroke-width="1.6" opacity=".6" fill="none"/>
+        <path d="M18,26 C12,18 12,12 18,10 C20,18 22,22 26,26 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1"/>
+      </g>
+      <g class="wing wing-r">
+        <path d="M148,86 L222,26 Q204,50 228,66 Q206,82 212,100 Q192,106 184,124 Q170,108 148,98 Z" fill="url(#gWing)" stroke="#160722" stroke-width="2"/>
+        <path d="M148,86 L222,26 M148,86 L228,66 M148,86 L212,100 M148,86 L184,124" stroke="#160722" stroke-width="1.6" opacity=".6" fill="none"/>
+        <path d="M222,26 C228,18 228,12 222,10 C220,18 218,22 214,26 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1"/>
+      </g>
+    </g>
+
+    <!-- COLA con pua -->
+    <path class="tail" d="M150,168 C188,186 214,168 220,144 C224,156 214,168 202,166 C182,162 166,176 150,166 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+    <path class="tail-tip" d="M220,144 C236,136 240,150 232,160 C230,150 224,150 220,156 C226,146 224,140 220,144 Z" fill="url(#gWing)" stroke="#160722" stroke-width="1.4"/>
+    <polygon class="tail" points="182,170 186,182 190,170" fill="url(#gHorn)" stroke="#160722" stroke-width="1"/>
+
+    <!-- CUERPO agazapado -->
+    <g class="body">
+      <path d="M82,94 C74,116 74,146 90,168 C102,184 138,184 150,168 C166,146 166,116 158,94 C140,84 100,84 82,94 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2.5"/>
+      <path d="M104,108 C98,132 100,158 120,172 C140,158 142,132 136,108 C126,104 114,104 104,108 Z" fill="url(#gBelly)" opacity=".92"/>
+      <path d="M107,120 L120,127 L133,120 M105,136 L120,144 L135,136 M108,152 L120,159 L132,152" fill="none" stroke="#3a2660" stroke-width="2" opacity=".85"/>
+      <!-- patas con garras -->
+      <path d="M92,168 C84,176 84,184 92,186 L104,182 C100,174 98,170 96,168 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+      <path d="M148,168 C156,176 156,184 148,186 L136,182 C140,174 142,170 144,168 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+      <path d="M84,186 l-3,7 M92,188 l-1,7 M100,186 l2,7 M140,186 l-2,7 M148,188 l1,7 M156,186 l3,7" stroke="#e8dcc0" stroke-width="2.4" stroke-linecap="round"/>
+      <!-- brazos con garras alzadas -->
+      <path class="arm" d="M84,104 C68,110 60,126 66,142 C74,130 76,116 90,110 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+      <path d="M64,142 l-5,5 M68,144 l-3,7 M73,143 l0,8" stroke="#e8dcc0" stroke-width="2.4" stroke-linecap="round"/>
+      <path class="arm" d="M156,104 C172,110 180,126 174,142 C166,130 164,116 150,110 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+      <path d="M176,142 l5,5 M172,144 l3,7 M167,143 l0,8" stroke="#e8dcc0" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+
+    <!-- CRESTAS dorsales -->
+    <path d="M120,92 l-6,-16 l0,16 M120,92 l6,-16 l0,16" fill="url(#gWing)" stroke="#160722" stroke-width="1.2"/>
+
+    <!-- CUELLO -->
+    <path class="neck" d="M100,96 C98,84 102,74 110,70 L130,70 C138,74 142,84 140,96 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2"/>
+
+    <!-- CABEZA FEROZ -->
+    <g class="head">
+      <!-- cuernos grandes -->
+      <path class="horn" d="M98,58 C86,40 78,24 66,14 C80,22 92,36 106,54 C106,58 100,60 98,58 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1.8"/>
+      <path class="horn" d="M142,58 C154,40 162,24 174,14 C160,22 148,36 134,54 C134,58 140,60 142,58 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1.8"/>
+      <!-- cuernos secundarios -->
+      <path class="horn" d="M108,52 C102,40 100,32 96,26 C104,34 110,42 116,50 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1.2"/>
+      <path class="horn" d="M132,52 C138,40 140,32 144,26 C136,34 130,42 124,50 Z" fill="url(#gHorn)" stroke="#160722" stroke-width="1.2"/>
+      <!-- espinas de mejilla -->
+      <polygon class="horn" points="90,78 74,74 92,86" fill="url(#gHorn)" stroke="#160722" stroke-width="1"/>
+      <polygon class="horn" points="150,78 166,74 148,86" fill="url(#gHorn)" stroke="#160722" stroke-width="1"/>
+      <!-- craneo angular -->
+      <path class="skull" d="M88,74 C86,58 98,50 120,50 C142,50 154,58 152,74 C150,90 140,100 128,106 L120,112 L112,106 C100,100 90,90 88,74 Z" fill="url(#gBody)" stroke="#160722" stroke-width="2.5"/>
+      <!-- resplandor de ojos -->
+      <ellipse class="eyeglow" cx="103" cy="80" rx="12" ry="8" fill="#ff5a1e" opacity=".4" filter="url(#soft)"/>
+      <ellipse class="eyeglow" cx="137" cy="80" rx="12" ry="8" fill="#ff5a1e" opacity=".4" filter="url(#soft)"/>
+      <!-- cejas gruesas inclinadas (furiosas) -->
+      <path d="M90,72 L114,80" stroke="#160722" stroke-width="5" stroke-linecap="round"/>
+      <path d="M150,72 L126,80" stroke="#160722" stroke-width="5" stroke-linecap="round"/>
+      <!-- ojos rasgados -->
+      <g class="eyes">
+        <path d="M95,78 Q105,75 113,82 Q104,86 95,82 Z" fill="url(#gEye)"/>
+        <path d="M145,78 Q135,75 127,82 Q136,86 145,82 Z" fill="url(#gEye)"/>
+        <ellipse cx="104" cy="81" rx="1.6" ry="4" fill="#12040a" transform="rotate(14 104 81)"/>
+        <ellipse cx="136" cy="81" rx="1.6" ry="4" fill="#12040a" transform="rotate(-14 136 81)"/>
+      </g>
+      <!-- parpados dormido -->
+      <g class="lids" style="display:none">
+        <path d="M94,82 Q104,77 113,83" fill="none" stroke="#160722" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M146,82 Q136,77 127,83" fill="none" stroke="#160722" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+      <!-- fosas nasales + humo -->
+      <ellipse cx="114" cy="98" rx="1.6" ry="3" fill="#12040a" transform="rotate(12 114 98)"/>
+      <ellipse cx="126" cy="98" rx="1.6" ry="3" fill="#12040a" transform="rotate(-12 126 98)"/>
+      <g class="smoke">
+        <circle class="smoke-a" cx="114" cy="96" r="3"/>
+        <circle class="smoke-b" cx="126" cy="96" r="3"/>
+      </g>
+      <!-- FAUCES abiertas con colmillos -->
+      <path d="M104,102 C110,110 130,110 136,102 C132,118 120,124 108,118 C104,112 103,106 104,102 Z" fill="url(#gMaw)" stroke="#160722" stroke-width="1.6"/>
+      <polygon points="107,103 109,112 111,103" fill="#fff"/>
+      <polygon points="115,104 117,114 119,104" fill="#fff"/>
+      <polygon points="123,104 125,114 127,104" fill="#fff"/>
+      <polygon points="131,103 133,112 135,103" fill="#fff"/>
+      <polygon points="112,119 114,112 116,119" fill="#efe6e0"/>
+      <polygon points="124,119 126,112 128,119" fill="#efe6e0"/>
+    </g>
+  </svg>
+</template>
+
+<!-- ============ TEMPLATE: MAGO ============ -->
+<template id="tpl-hero">
+  <svg class="hero" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gCloak" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3fe0c0"/>
+        <stop offset="1" stop-color="#127a86"/>
+      </linearGradient>
+      <radialGradient id="gCrystal" cx="0.5" cy="0.4" r="0.7">
+        <stop offset="0" stop-color="#eafff9"/>
+        <stop offset="1" stop-color="#31d6ff"/>
+      </radialGradient>
+    </defs>
+    <!-- capa / cuerpo -->
+    <path d="M60,58 C40,58 30,90 28,150 L92,150 C90,90 80,58 60,58 Z" fill="url(#gCloak)" stroke="#0c3b45" stroke-width="3"/>
+    <path d="M60,70 L54,150 L66,150 Z" fill="#7ff0dd" opacity=".5"/>
+    <!-- capucha -->
+    <path d="M60,30 C44,30 36,46 40,62 C48,54 72,54 80,62 C84,46 76,30 60,30 Z" fill="url(#gCloak)" stroke="#0c3b45" stroke-width="3"/>
+    <!-- rostro en sombra -->
+    <ellipse cx="60" cy="52" rx="12" ry="11" fill="#10202a"/>
+    <circle cx="55" cy="52" r="2" fill="#7ff0dd"/>
+    <circle cx="65" cy="52" r="2" fill="#7ff0dd"/>
+    <!-- baston -->
+    <g class="staff">
+      <rect x="86" y="40" width="6" height="118" rx="3" fill="#7a5a3a" stroke="#0c3b45" stroke-width="2"/>
+      <circle class="crystal" cx="89" cy="36" r="12" fill="url(#gCrystal)" stroke="#0c3b45" stroke-width="2"/>
+      <circle class="crystal-core" cx="89" cy="36" r="5" fill="#eafff9"/>
+    </g>
+    <!-- brazo -->
+    <path d="M74,78 C82,74 88,64 89,48" fill="none" stroke="url(#gCloak)" stroke-width="9" stroke-linecap="round"/>
+  </svg>
+</template>
+
+<main id="app">
+
+  <!-- PANTALLA: INICIO -->
+  <section id="screen-start" class="screen active">
+    <div class="title-block">
+      <p class="eyebrow">Duelo arcano de conjugaciones</p>
+      <h1 class="game-title">El Dragón<br><span>de los Verbos</span></h1>
+    </div>
+    <div class="hero-stage">
+      <div id="dragon-sleep" class="stage-slot"></div>
+      <div class="zzz">z<span>z</span><span>z</span></div>
+    </div>
+    <button id="btn-start" class="cta">Despertar al dragón</button>
+    <button id="btn-share" class="ghost-btn share-btn">📱 Compartir / QR</button>
+    <p class="hint-line">Responde bien y tu hechizo herirá al dragón. Falla y sentirás su furia.</p>
+  </section>
+
+  <!-- PANTALLA: INTRO -->
+  <section id="screen-intro" class="screen">
+    <div class="hero-stage small">
+      <div id="dragon-intro" class="stage-slot shaking"></div>
+    </div>
+    <div class="speech">
+      <p id="dialog-text"></p>
+      <span id="dialog-cursor" class="caret">▸</span>
+    </div>
+    <button id="btn-skip-intro" class="ghost-btn">Comenzar el duelo →</button>
+  </section>
+
+  <!-- PANTALLA: BATALLA -->
+  <section id="screen-battle" class="screen">
+
+    <!-- Tarjetas de combatientes -->
+    <div class="combatants">
+      <div class="fighter-card dragon-card">
+        <div class="portrait dragon-portrait">🐲</div>
+        <div class="fighter-info">
+          <div class="fighter-top">
+            <span class="fighter-name">Dragón</span>
+            <span id="dragon-badges" class="badges"></span>
+          </div>
+          <div class="hp-track"><div id="hp-dragon-ghost" class="hp-ghost dragon-ghost"></div><div id="hp-dragon" class="hp-fill dragon-fill"></div></div>
+          <span id="hp-dragon-text" class="hp-num">150 / 150</span>
+        </div>
+      </div>
+
+      <div class="round-chip">
+        <span id="round-indicator">Ronda 1</span>
+        <span id="question-counter">1 / 10</span>
+        <span id="score-display">0 pts</span>
+      </div>
+
+      <div class="fighter-card hero-card">
+        <div class="portrait hero-portrait">🧙</div>
+        <div class="fighter-info">
+          <div class="fighter-top">
+            <span class="fighter-name">Aprendiz</span>
+            <span id="hero-badges" class="badges"></span>
+          </div>
+          <div class="hp-track"><div id="hp-player-ghost" class="hp-ghost hero-ghost"></div><div id="hp-player" class="hp-fill hero-fill"></div></div>
+          <span id="hp-player-text" class="hp-num">100 / 100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de tiempo -->
+    <div class="timer-track"><div id="timer-bar" class="timer-bar"></div></div>
+
+    <!-- Escenario de combate -->
+    <div class="arena" id="arena">
+      <div id="dragon-battle" class="stage-slot"></div>
+      <div id="combo-badge" class="combo-badge"></div>
+      <div id="danger-ribbon" class="danger-ribbon">⚠ El dragón concentra su poder</div>
+      <div id="hero-battle" class="stage-slot hero-slot"></div>
+    </div>
+
+    <!-- Pregunta -->
+    <div class="question-panel">
+      <span id="difficulty-pill" class="pill">Fácil</span>
+      <p id="question-text" class="question">…</p>
+    </div>
+
+    <!-- Respuestas -->
+    <div id="options" class="options">
+      <button class="answer" data-index="0"><span class="key">A</span><span class="txt"></span></button>
+      <button class="answer" data-index="1"><span class="key">B</span><span class="txt"></span></button>
+      <button class="answer" data-index="2"><span class="key">C</span><span class="txt"></span></button>
+      <button class="answer" data-index="3"><span class="key">D</span><span class="txt"></span></button>
+    </div>
+
+    <!-- Acciones -->
+    <div class="actions">
+      <button id="btn-comodin" class="action-btn wildcard">
+        <span class="ab-icon">✦</span>
+        <span class="ab-label">Ayuda mágica</span>
+        <span id="comodin-charges" class="ab-count">2</span>
+      </button>
+      <button id="btn-special" class="action-btn special" disabled>
+        <span class="ab-icon">⚡</span>
+        <span class="ab-label">Desatar hechizo</span>
+        <span class="charge-meter"><span id="charge-fill" class="charge-fill"></span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- PANTALLA: FIN DE RONDA -->
+  <section id="screen-round-end" class="screen">
+    <h2 class="panel-title">Ronda superada</h2>
+    <div class="summary-grid">
+      <div class="summary-item"><span class="si-num" id="stat-good">0</span><span class="si-label">Aciertos</span></div>
+      <div class="summary-item"><span class="si-num" id="stat-bad">0</span><span class="si-label">Fallos</span></div>
+      <div class="summary-item"><span class="si-num" id="stat-combo">0</span><span class="si-label">Mejor combo</span></div>
+      <div class="summary-item"><span class="si-num" id="stat-score">0</span><span class="si-label">Puntos</span></div>
+    </div>
+    <p class="hp-remaining" id="round-hp"></p>
+    <button id="btn-next-round" class="cta">Siguiente ronda →</button>
+  </section>
+
+  <!-- PANTALLA: FIN -->
+  <section id="screen-end" class="screen">
+    <div id="end-emblem" class="end-emblem"></div>
+    <h1 id="end-title" class="game-title end-title"></h1>
+    <p id="end-message" class="end-message"></p>
+    <div class="summary-grid two">
+      <div class="summary-item"><span class="si-num" id="final-score">0</span><span class="si-label">Puntuación</span></div>
+      <div class="summary-item"><span class="si-num" id="final-combo">0</span><span class="si-label">Mejor combo</span></div>
+    </div>
+    <button id="btn-restart" class="cta">Jugar de nuevo</button>
+    <button id="btn-share-end" class="ghost-btn share-btn">📱 Retar a un amigo (QR)</button>
+  </section>
+
+</main>
+
+<div id="banner" class="banner"></div>
+
+<!-- ============ MODAL: COMPARTIR / QR ============ -->
+<div id="qr-modal" class="qr-modal">
+  <div class="qr-card">
+    <button id="qr-close" class="qr-close" title="Cerrar">✕</button>
+    <h2 class="qr-title">Escanea para jugar</h2>
+    <div id="qr-box" class="qr-box"></div>
+    <p class="qr-url" id="qr-url"></p>
+    <p class="qr-note" id="qr-note"></p>
+  </div>
+</div>
+
+<script src="qrcode.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

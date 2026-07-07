@@ -1,0 +1,434 @@
+/* ============================================================
+   EL DRAGON DE LOS VERBOS — Estilo 2D ilustrado "duelo arcano"
+   Paleta:  night #1a1033 · dusk #2d1b54 · arcane #8b5cf6
+            ember #ff8a3d · gold #ffd15c · mint #4fe3c1 · rose #ff5d73
+   Tipo:    Cinzel (display) · Nunito (cuerpo)
+   ============================================================ */
+
+:root {
+  --night: #150c2e;
+  --dusk: #2d1b54;
+  --panel: rgba(45, 27, 84, 0.55);
+  --panel-solid: #241541;
+  --arcane: #8b5cf6;
+  --arcane-lt: #b79bff;
+  --ember: #ff8a3d;
+  --gold: #ffd15c;
+  --mint: #4fe3c1;
+  --rose: #ff5d73;
+  --ink: #efe9ff;
+  --muted: #a99fd0;
+  --line: rgba(183, 155, 255, 0.22);
+  --radius: 18px;
+  --shadow: 0 18px 40px -12px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--night);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   FONDO EN CAPAS + PARALLAX
+   ============================================================ */
+#scene { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
+.layer { position: absolute; inset: -6% -6% -6% -6%; will-change: transform; }
+.sky {
+  background:
+    radial-gradient(120% 90% at 50% 8%, #3a2170 0%, transparent 55%),
+    radial-gradient(90% 70% at 78% 22%, rgba(255,138,61,.16) 0%, transparent 60%),
+    linear-gradient(180deg, #1f1147 0%, #2a1655 40%, #160d31 100%);
+}
+.mountains {
+  bottom: -6%; top: auto; height: 46%;
+  background:
+    linear-gradient(180deg, transparent, rgba(12,6,28,.9)),
+    repeating-linear-gradient(135deg, #241247 0 2px, transparent 2px 3px);
+  clip-path: polygon(0 60%, 8% 42%, 18% 58%, 27% 34%, 38% 56%, 50% 30%, 60% 55%, 72% 38%, 84% 60%, 93% 44%, 100% 62%, 100% 100%, 0 100%);
+  opacity: .8;
+}
+.mist { mix-blend-mode: screen; opacity: .5; }
+.mist-a { background: radial-gradient(60% 30% at 30% 70%, rgba(139,92,246,.5), transparent 70%); animation: drift 26s ease-in-out infinite; }
+.mist-b { background: radial-gradient(55% 26% at 72% 78%, rgba(79,227,193,.32), transparent 70%); animation: drift 34s ease-in-out infinite reverse; }
+@keyframes drift { 0%,100% { transform: translateX(-3%); } 50% { transform: translateX(4%); } }
+.ground {
+  top: auto; bottom: -6%; height: 22%;
+  background: linear-gradient(180deg, transparent, rgba(10,5,24,.95));
+  box-shadow: inset 0 40px 60px -30px rgba(139,92,246,.4);
+}
+.motes { pointer-events: none; }
+.mote { position: absolute; border-radius: 50%; filter: blur(.5px); opacity: 0; animation: floatUp linear infinite; }
+@keyframes floatUp {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  12% { opacity: var(--o, .8); }
+  100% { transform: translateY(-108vh) translateX(var(--dx, 20px)) scale(.4); opacity: 0; }
+}
+
+/* ============================================================
+   BOTONES GLOBALES
+   ============================================================ */
+.glass-btn {
+  position: fixed; top: 16px; z-index: 40;
+  font-family: 'Nunito'; font-weight: 800; font-size: .82rem; color: var(--ink);
+  background: var(--panel); backdrop-filter: blur(10px);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 9px 16px; cursor: pointer; transition: .18s;
+}
+.glass-btn:hover { border-color: var(--arcane-lt); transform: translateY(-1px); }
+.corner-home { left: 16px; display: none; }
+.corner-home.visible { display: inline-flex; }
+.corner-mute { right: 16px; }
+
+/* ============================================================
+   ESTRUCTURA / PANTALLAS
+   ============================================================ */
+#app { position: relative; z-index: 1; min-height: 100vh; max-width: 720px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px 18px 34px; gap: 20px; }
+.screen { display: none; flex-direction: column; align-items: center; width: 100%; gap: 20px;
+  animation: screenIn .5s cubic-bezier(.2,.8,.2,1); }
+.screen.active { display: flex; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   TIPOGRAFIA / TITULOS
+   ============================================================ */
+.eyebrow { font-family: 'Nunito'; font-weight: 800; letter-spacing: .28em; text-transform: uppercase;
+  font-size: .64rem; color: var(--ember); text-align: center; margin-bottom: 10px; }
+.game-title { font-family: 'Cinzel', serif; font-weight: 900; text-align: center; line-height: 1.02;
+  font-size: clamp(2.2rem, 8vw, 3.4rem); letter-spacing: .02em;
+  background: linear-gradient(180deg, #fff 0%, var(--arcane-lt) 60%, var(--arcane) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 18px rgba(139,92,246,.5)); }
+.game-title span { color: transparent; background: linear-gradient(180deg, var(--gold), var(--ember));
+  -webkit-background-clip: text; background-clip: text; }
+.title-block { margin-bottom: 4px; }
+.hint-line { color: var(--muted); font-size: .84rem; text-align: center; max-width: 440px; line-height: 1.6; }
+
+/* ============================================================
+   CTA / BOTONES
+   ============================================================ */
+.cta {
+  font-family: 'Nunito'; font-weight: 900; font-size: 1rem; letter-spacing: .01em;
+  color: #1b0f2e; background: linear-gradient(180deg, var(--gold), var(--ember));
+  border: none; border-radius: 999px; padding: 15px 34px; cursor: pointer;
+  box-shadow: 0 12px 30px -8px rgba(255,138,61,.6), inset 0 1px 0 rgba(255,255,255,.5);
+  transition: transform .12s, box-shadow .2s;
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -8px rgba(255,138,61,.75); }
+.cta:active { transform: translateY(0) scale(.98); }
+.ghost-btn { font-family: 'Nunito'; font-weight: 800; color: var(--arcane-lt); background: none;
+  border: 1px solid var(--line); border-radius: 999px; padding: 12px 24px; cursor: pointer; transition: .18s; }
+.ghost-btn:hover { border-color: var(--arcane-lt); background: rgba(139,92,246,.12); }
+
+/* ============================================================
+   ESCENARIO + CIRCULO RUNICO (elemento distintivo)
+   ============================================================ */
+.hero-stage { position: relative; display: grid; place-items: center; width: 280px; height: 280px; }
+.hero-stage.small { width: 220px; height: 220px; }
+.stage-slot { position: relative; z-index: 2; display: grid; place-items: end center; }
+.hero-stage .dragon { width: 228px; animation: floaty 4s ease-in-out infinite; }
+.hero-stage.small .dragon { width: 180px; }
+
+.rune-circle {
+  position: absolute; width: 240px; height: 240px; border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, transparent 0 8deg, rgba(139,92,246,.5) 8deg 10deg, transparent 10deg 30deg) ,
+    radial-gradient(circle, transparent 58%, rgba(139,92,246,.16) 60%, transparent 72%);
+  border: 2px solid rgba(183,155,255,.35);
+  box-shadow: 0 0 60px rgba(139,92,246,.35), inset 0 0 50px rgba(139,92,246,.25);
+  animation: spinSlow 22s linear infinite; opacity: .9;
+}
+.rune-circle::after {
+  content: ""; position: absolute; inset: 18px; border-radius: 50%;
+  border: 1px dashed rgba(255,209,92,.4); animation: spinSlow 14s linear infinite reverse;
+}
+.hero-stage.small .rune-circle { width: 190px; height: 190px; }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+
+.zzz { position: absolute; top: 20%; right: 14%; z-index: 3; font-family: 'Cinzel'; font-weight: 700;
+  color: var(--mint); font-size: 1rem; }
+.zzz span { animation: floatZ 2.6s ease-in-out infinite; display: inline-block; }
+.zzz span:nth-child(1) { animation-delay: .3s; } .zzz span:nth-child(2) { animation-delay: .6s; }
+@keyframes floatZ { 0%,100% { transform: translateY(0); opacity: .4; } 50% { transform: translateY(-8px); opacity: 1; } }
+
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* ============================================================
+   DRAGON — animaciones base
+   ============================================================ */
+.dragon { display: block; filter: drop-shadow(0 16px 20px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(120,20,40,.25)); }
+.dragon .wings { transform-box: fill-box; transform-origin: center; }
+.dragon .wing-l { transform-box: fill-box; transform-origin: 90% 50%; animation: flapL 2.4s ease-in-out infinite; }
+.dragon .wing-r { transform-box: fill-box; transform-origin: 10% 50%; animation: flapR 2.4s ease-in-out infinite; }
+@keyframes flapL { 0%,100% { transform: rotate(0) scaleX(1); } 50% { transform: rotate(6deg) scaleX(.92); } }
+@keyframes flapR { 0%,100% { transform: rotate(0) scaleX(1); } 50% { transform: rotate(-6deg) scaleX(.92); } }
+.dragon .tail, .dragon .tail-tip { transform-box: fill-box; transform-origin: left center; animation: tailSway 5s ease-in-out infinite; }
+@keyframes tailSway { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-5deg); } }
+.dragon .eyeglow { animation: eyePulse 2s ease-in-out infinite; }
+@keyframes eyePulse { 0%,100% { opacity: .25; } 50% { opacity: .55; } }
+.dragon .smoke circle { fill: #c9bce0; opacity: 0; }
+.dragon .smoke .smoke-a { animation: puff 3s ease-out infinite; }
+.dragon .smoke .smoke-b { animation: puff 3s ease-out infinite 1.5s; }
+@keyframes puff { 0% { opacity: 0; transform: translate(0,0) scale(.5); } 25% { opacity: .4; } 100% { opacity: 0; transform: translate(-4px,-16px) scale(2.4); } }
+
+.stage-slot.shaking .dragon { animation: floaty 4s ease-in-out infinite, tremor .18s infinite; }
+@keyframes tremor { 0%,100% { margin-left: 0; } 25% { margin-left: -3px; } 75% { margin-left: 3px; } }
+
+/* FURIA: reescribe los stops de los degradados */
+.enraged .body-1 { stop-color: #ff5566; } .enraged .body-2 { stop-color: #6e0f1c; }
+.enraged .wing-1 { stop-color: #ff3550; } .enraged .wing-2 { stop-color: #4a0810; }
+.enraged .belly-1 { stop-color: #ffd0d0; } .enraged .belly-2 { stop-color: #d98a8a; }
+.enraged .eye-1 { stop-color: #ffffff; } .enraged .eye-2 { stop-color: #ff2200; }
+.enraged .eyeglow { fill: #ff2a00; opacity: .5 !important; }
+.enraged.dragon, .enraged .dragon { filter: drop-shadow(0 0 22px rgba(255,60,80,.6)); }
+.enraged .wing-l { animation-duration: 1.2s; } .enraged .wing-r { animation-duration: 1.2s; }
+
+/* Combate: embestidas y golpes */
+.dragon.atk { animation: dLunge .7s cubic-bezier(.3,.9,.3,1); }
+@keyframes dLunge { 0% { transform: translateX(0) scale(1); } 22% { transform: translateX(-16px) scale(.95) rotate(-3deg); }
+  50% { transform: translateX(66px) scale(1.12) rotate(4deg); } 70% { transform: translateX(40px) scale(1.06); } 100% { transform: translateX(0) scale(1); } }
+.dragon.recoil { animation: dRecoil .55s ease-out; }
+@keyframes dRecoil { 0% { transform: translateX(0); } 20% { transform: translateX(-26px) rotate(-6deg); } 100% { transform: translateX(0) rotate(0); } }
+.dragon.roar { animation: dRoar .9s ease-out; }
+@keyframes dRoar { 0% { transform: scale(1); } 30% { transform: scale(1.14) translateY(-8px); } 55% { transform: scale(1.16) rotate(2deg); } 100% { transform: scale(1); } }
+.dragon.charging { animation: dCharge 1s ease-in-out infinite; }
+@keyframes dCharge { 0%,100% { filter: drop-shadow(0 0 8px rgba(255,60,80,.4)); } 50% { filter: drop-shadow(0 0 26px rgba(255,90,60,.9)) brightness(1.15); } }
+
+.hurt { animation: hurt .5s ease-out; }
+@keyframes hurt { 0%,100% { filter: none; } 20%,60% { filter: brightness(2.4) drop-shadow(0 0 14px #fff); } }
+
+/* ============================================================
+   MAGO
+   ============================================================ */
+.hero { display: block; filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); animation: floaty 3.4s ease-in-out infinite; }
+.hero .crystal, .hero .crystal-core { transform-box: fill-box; transform-origin: center; }
+.hero .crystal-core { animation: crystalPulse 1.8s ease-in-out infinite; }
+@keyframes crystalPulse { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
+.hero.atk { animation: hLunge .6s cubic-bezier(.3,.9,.3,1); }
+@keyframes hLunge { 0% { transform: translateX(0); } 20% { transform: translateX(20px) rotate(5deg); }
+  48% { transform: translateX(-46px) rotate(-8deg); } 70% { transform: translateX(-28px); } 100% { transform: translateX(0) rotate(0); } }
+.hero.atk .staff { transform-box: fill-box; transform-origin: 74% 96%; animation: cast .6s ease-out; }
+@keyframes cast { 0% { transform: rotate(0); } 30% { transform: rotate(22deg); } 60% { transform: rotate(-30deg); } 100% { transform: rotate(0); } }
+.hero.recoil { animation: hRecoil .55s ease-out; }
+@keyframes hRecoil { 0% { transform: translateX(0); } 20% { transform: translateX(30px) rotate(8deg); } 100% { transform: translateX(0); } }
+
+/* ============================================================
+   TARJETAS DE COMBATIENTES + HP
+   ============================================================ */
+.combatants { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: start; }
+.fighter-card { background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 10px; display: flex; gap: 10px; align-items: center; box-shadow: var(--shadow); }
+.hero-card { flex-direction: row-reverse; text-align: right; }
+.portrait { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 14px; display: grid; place-items: center;
+  font-size: 1.5rem; border: 1px solid var(--line); }
+.dragon-portrait { background: radial-gradient(circle at 50% 35%, rgba(255,90,110,.3), rgba(139,92,246,.25)); }
+.hero-portrait { background: radial-gradient(circle at 50% 35%, rgba(79,227,193,.3), rgba(49,150,255,.2)); }
+.fighter-info { flex: 1; min-width: 0; }
+.fighter-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; }
+.hero-card .fighter-top { flex-direction: row-reverse; }
+.fighter-name { font-family: 'Cinzel'; font-weight: 700; font-size: .82rem; letter-spacing: .02em; }
+.badges { display: flex; gap: 4px; font-size: .8rem; }
+.badge { animation: pop .3s ease-out; }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+.hp-track { position: relative; height: 12px; border-radius: 999px; background: rgba(0,0,0,.4);
+  overflow: hidden; border: 1px solid rgba(255,255,255,.08); }
+.hp-ghost { position: absolute; inset: 0; width: 100%; border-radius: 999px; }
+.dragon-ghost { background: rgba(255,93,115,.5); transition: width .7s .25s ease-out; }
+.hero-ghost { background: rgba(79,227,193,.45); transition: width .7s .25s ease-out; }
+.hp-fill { position: absolute; inset: 0; width: 100%; border-radius: 999px; transition: width .35s cubic-bezier(.4,1,.4,1); }
+.dragon-fill { background: linear-gradient(90deg, #ff8a3d, #ff5d73); }
+.hero-fill { background: linear-gradient(90deg, #4fe3c1, #31a8ff); }
+.hp-num { font-size: .64rem; color: var(--muted); font-weight: 700; margin-top: 4px; display: block; }
+
+.round-chip { align-self: center; text-align: center; display: flex; flex-direction: column; gap: 2px;
+  font-weight: 800; }
+#round-indicator { font-family: 'Cinzel'; font-size: .74rem; color: var(--arcane-lt); }
+#question-counter { font-size: .68rem; color: var(--muted); }
+#score-display { font-size: .68rem; color: var(--gold); }
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+.timer-track { width: 100%; height: 6px; border-radius: 999px; background: rgba(0,0,0,.4); overflow: hidden; }
+.timer-bar { height: 100%; width: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--mint), var(--gold));
+  transition: width .1s linear; }
+.timer-bar.warn { background: linear-gradient(90deg, var(--gold), var(--ember)); }
+.timer-bar.danger { background: linear-gradient(90deg, var(--ember), var(--rose)); }
+
+/* ============================================================
+   ARENA
+   ============================================================ */
+.arena { position: relative; width: 100%; height: 200px; display: flex; align-items: flex-end;
+  justify-content: space-between; padding: 0 6px; overflow: visible; }
+.arena.shake { animation: aShake .4s ease-out; }
+@keyframes aShake { 0%,100% { transform: translate(0,0); } 25% { transform: translate(-7px,3px); } 50% { transform: translate(6px,-3px); } 75% { transform: translate(-4px,2px); } }
+.arena .dragon { width: 200px; }
+.arena .hero { width: 104px; }
+.battle-rune { width: 210px; height: 210px; left: 20px; bottom: -14px; }
+.hero-slot { position: relative; }
+
+.combo-badge { position: absolute; top: 4px; left: 50%; transform: translateX(-50%) scale(0);
+  font-family: 'Cinzel'; font-weight: 900; font-size: 1.1rem; color: var(--gold);
+  text-shadow: 0 2px 12px rgba(255,209,92,.8); white-space: nowrap; }
+.combo-badge.show { animation: comboIn .5s cubic-bezier(.2,1.6,.4,1); transform: translateX(-50%) scale(1); }
+@keyframes comboIn { 0% { transform: translateX(-50%) scale(0) rotate(-10deg); } 60% { transform: translateX(-50%) scale(1.3); } 100% { transform: translateX(-50%) scale(1); } }
+
+.danger-ribbon { position: absolute; top: -6px; left: 50%; transform: translateX(-50%) translateY(-10px);
+  background: linear-gradient(90deg, rgba(255,93,115,.9), rgba(255,138,61,.9)); color: #fff; font-weight: 900;
+  font-size: .7rem; padding: 7px 16px; border-radius: 999px; opacity: 0; pointer-events: none;
+  box-shadow: 0 8px 22px -6px rgba(255,60,80,.7); white-space: nowrap; transition: .3s; }
+.danger-ribbon.show { opacity: 1; transform: translateX(-50%) translateY(0); animation: ribbonPulse 1s ease-in-out infinite; }
+@keyframes ribbonPulse { 0%,100% { box-shadow: 0 8px 22px -6px rgba(255,60,80,.6); } 50% { box-shadow: 0 8px 30px -4px rgba(255,60,80,.95); } }
+
+/* proyectiles y particulas */
+.projectile { position: absolute; z-index: 8; border-radius: 50%; pointer-events: none;
+  filter: blur(.4px); box-shadow: 0 0 20px 6px currentColor; }
+.spark { position: absolute; z-index: 9; border-radius: 50%; pointer-events: none; }
+.combat-text { position: absolute; z-index: 10; font-family: 'Cinzel'; font-weight: 900; pointer-events: none;
+  text-shadow: 0 2px 10px rgba(0,0,0,.8); animation: ctRise 1s ease-out forwards; white-space: nowrap; }
+@keyframes ctRise { 0% { opacity: 0; transform: translateY(6px) scale(.7); } 20% { opacity: 1; transform: translateY(-6px) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-46px) scale(1); } }
+
+/* ============================================================
+   PREGUNTA
+   ============================================================ */
+.question-panel { position: relative; width: 100%; background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 20px; box-shadow: var(--shadow);
+  text-align: center; }
+.pill { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-weight: 900; font-size: .62rem;
+  letter-spacing: .12em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; color: #1b0f2e; }
+.pill.d1 { background: var(--mint); } .pill.d2 { background: var(--gold); } .pill.d3 { background: var(--rose); color: #fff; }
+.question { font-size: 1.02rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+
+/* ============================================================
+   RESPUESTAS
+   ============================================================ */
+.options { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.answer { display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
+  background: linear-gradient(180deg, rgba(58,36,102,.7), rgba(36,21,65,.7)); backdrop-filter: blur(8px);
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-height: 62px;
+  color: var(--ink); font-family: 'Nunito'; font-weight: 700; font-size: .92rem; transition: transform .12s, border-color .2s, box-shadow .2s; }
+.answer:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--arcane-lt); box-shadow: 0 12px 26px -12px rgba(139,92,246,.7); }
+.answer:active:not(:disabled) { transform: translateY(0) scale(.98); }
+.answer:disabled { cursor: default; }
+.answer .key { flex: 0 0 26px; height: 26px; display: grid; place-items: center; border-radius: 8px;
+  background: rgba(139,92,246,.3); font-weight: 900; font-size: .78rem; color: var(--arcane-lt); }
+.answer.correct { border-color: var(--mint); background: linear-gradient(180deg, rgba(79,227,193,.35), rgba(20,90,80,.4));
+  box-shadow: 0 0 26px -6px rgba(79,227,193,.8); animation: goodPulse .5s ease-out; }
+.answer.correct .key { background: var(--mint); color: #0c2b26; }
+.answer.wrong { border-color: var(--rose); background: linear-gradient(180deg, rgba(255,93,115,.35), rgba(90,20,30,.4));
+  animation: badShake .4s ease-out; }
+.answer.wrong .key { background: var(--rose); color: #fff; }
+.answer.faded { opacity: .25; transform: scale(.96); filter: grayscale(.6); }
+@keyframes goodPulse { 0%,100% { box-shadow: 0 0 26px -6px rgba(79,227,193,.8); } 50% { box-shadow: 0 0 40px 0 rgba(79,227,193,1); } }
+@keyframes badShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+/* ============================================================
+   ACCIONES (comodin + hechizo especial)
+   ============================================================ */
+.actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-btn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; border-radius: 14px; padding: 12px 10px 14px; font-family: 'Nunito'; font-weight: 900;
+  border: 1px solid var(--line); color: var(--ink); transition: transform .12s, box-shadow .2s, opacity .2s; }
+.action-btn:disabled { opacity: .45; cursor: not-allowed; }
+.action-btn:not(:disabled):hover { transform: translateY(-2px); }
+.wildcard { background: linear-gradient(180deg, rgba(139,92,246,.55), rgba(80,40,150,.5)); }
+.wildcard:not(:disabled):hover { box-shadow: 0 12px 28px -10px rgba(139,92,246,.8); }
+.special { background: linear-gradient(180deg, rgba(255,138,61,.5), rgba(120,50,20,.5)); }
+.special.ready { animation: readyGlow 1.2s ease-in-out infinite; }
+.special.ready:hover { box-shadow: 0 14px 32px -8px rgba(255,138,61,.9); }
+@keyframes readyGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,138,61,.5); } 50% { box-shadow: 0 0 26px 2px rgba(255,138,61,.85); } }
+.ab-icon { font-size: 1.3rem; line-height: 1; }
+.ab-label { font-size: .78rem; }
+.ab-count { position: absolute; top: 8px; right: 10px; background: rgba(0,0,0,.35); border-radius: 999px;
+  font-size: .66rem; padding: 2px 7px; }
+.charge-meter { width: 78%; height: 5px; border-radius: 999px; background: rgba(0,0,0,.4); overflow: hidden; margin-top: 2px; }
+.charge-fill { display: block; height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), var(--ember)); transition: width .4s ease-out; }
+
+/* ============================================================
+   FIN DE RONDA / FIN
+   ============================================================ */
+.panel-title { font-family: 'Cinzel'; font-weight: 900; font-size: 1.6rem; color: var(--arcane-lt); }
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+.summary-grid.two { grid-template-columns: repeat(2, 1fr); max-width: 380px; }
+.summary-item { background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--line);
+  border-radius: 14px; padding: 16px 8px; text-align: center; box-shadow: var(--shadow); }
+.si-num { display: block; font-family: 'Cinzel'; font-weight: 900; font-size: 1.7rem; color: var(--gold); }
+.si-label { font-size: .64rem; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.hp-remaining { color: var(--muted); font-size: .84rem; }
+.end-emblem { font-size: 4.4rem; animation: floaty 2.6s ease-in-out infinite; }
+.end-title { font-size: clamp(2.4rem, 10vw, 3.6rem); }
+.end-message { color: var(--muted); text-align: center; max-width: 440px; line-height: 1.6; font-size: .92rem; }
+
+/* ============================================================
+   SPEECH (intro)
+   ============================================================ */
+.speech { position: relative; width: 100%; max-width: 560px; background: var(--panel); backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow);
+  font-size: 1rem; line-height: 1.7; min-height: 90px; font-style: italic; color: #f6f0ff; }
+.speech::before { content: "El Dragón"; position: absolute; top: -12px; left: 20px; font-family: 'Cinzel';
+  font-weight: 700; font-size: .68rem; color: var(--rose); background: var(--panel-solid); padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); }
+.caret { color: var(--ember); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============================================================
+   CINEMATICA
+   ============================================================ */
+.cine { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
+  overflow: hidden; --accent: var(--arcane); }
+.cine.show { display: flex; animation: cineFade .25s ease-out; }
+@keyframes cineFade { from { opacity: 0; } to { opacity: 1; } }
+.cine::before { content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--accent) 22%, transparent), rgba(8,4,20,.94) 62%); }
+.cine-burst { position: absolute; width: 1200px; height: 1200px;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--accent) 55%, transparent) 0 4deg, transparent 4deg 12deg);
+  opacity: .16; animation: spinSlow 10s linear infinite; }
+.cine-sigil { position: absolute; width: 300px; height: 300px; border-radius: 50%;
+  border: 3px solid var(--accent); box-shadow: 0 0 50px var(--accent), inset 0 0 50px color-mix(in srgb, var(--accent) 50%, transparent);
+  animation: spinSlow 6s linear infinite reverse; }
+.cine-sigil::after { content: ""; position: absolute; inset: 26px; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--accent) 70%, transparent); animation: spinSlow 4s linear infinite; }
+.cine-body { position: relative; z-index: 2; text-align: center; transform: scale(0); }
+.cine.show .cine-body { animation: cinePop .6s cubic-bezier(.2,1.6,.4,1) forwards; }
+@keyframes cinePop { 0% { transform: scale(0) rotate(-6deg); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.cine-icon { font-size: 4rem; filter: drop-shadow(0 0 24px var(--accent)); animation: floaty 1.6s ease-in-out infinite; }
+.cine-title { font-family: 'Cinzel'; font-weight: 900; font-size: clamp(1.6rem, 6vw, 2.4rem); margin-top: 12px;
+  color: #fff; text-shadow: 0 0 26px var(--accent); letter-spacing: .04em; }
+.cine-desc { margin-top: 12px; max-width: 440px; padding: 0 24px; color: #efe9ff; font-size: .92rem; line-height: 1.7; }
+
+.flash { position: fixed; inset: 0; z-index: 59; background: #fff; opacity: 0; pointer-events: none; }
+.flash.go { animation: flashGo .3s ease-out; }
+@keyframes flashGo { 30% { opacity: .85; } 100% { opacity: 0; } }
+
+/* ============================================================
+   BANNER
+   ============================================================ */
+.banner { position: fixed; top: 38%; left: 50%; transform: translate(-50%,-50%) scale(0); z-index: 55;
+  font-family: 'Cinzel'; font-weight: 900; font-size: 1.4rem; color: #fff; text-align: center;
+  background: linear-gradient(90deg, var(--rose), var(--ember)); padding: 16px 30px; border-radius: 16px;
+  box-shadow: 0 20px 50px -10px rgba(255,60,80,.6); pointer-events: none; }
+.banner.show { animation: bannerPop 1.7s ease-out forwards; }
+@keyframes bannerPop { 0% { transform: translate(-50%,-50%) scale(0); } 14% { transform: translate(-50%,-50%) scale(1.12); }
+  28% { transform: translate(-50%,-50%) scale(1); } 80% { transform: translate(-50%,-50%) scale(1); opacity: 1; } 100% { opacity: 0; } }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 560px) {
+  .fighter-card { flex-direction: column; text-align: center; gap: 6px; }
+  .hero-card { flex-direction: column; }
+  .fighter-top, .hero-card .fighter-top { flex-direction: column; gap: 2px; }
+  .arena { height: 168px; } .arena .dragon { width: 138px; } .arena .hero { width: 92px; }
+  .question { font-size: .92rem; } .answer { font-size: .82rem; min-height: 56px; padding: 12px; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; }
+}
