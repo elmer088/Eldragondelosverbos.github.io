@@ -586,8 +586,11 @@ function abrirQR() {
 }
 function cerrarQR() { qrModal.classList.remove('show'); }
 
-$('btn-share').addEventListener('click', abrirQR);
-const btnShareEnd = $('btn-share-end');
-if (btnShareEnd) btnShareEnd.addEventListener('click', abrirQR);
-$('qr-close').addEventListener('click', cerrarQR);
-qrModal.addEventListener('click', (e) => { if (e.target === qrModal) cerrarQR(); })
+function conectar(id, evento, fn) {
+  const elx = document.getElementById(id);
+  if (elx) elx.addEventListener(evento, fn);
+}
+conectar('btn-share', 'click', abrirQR);
+conectar('btn-share-end', 'click', abrirQR);
+conectar('qr-close', 'click', cerrarQR);
+if (qrModal) qrModal.addEventListener('click', (e) => { if (e.target === qrModal) cerrarQR(); });
