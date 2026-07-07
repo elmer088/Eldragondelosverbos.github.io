@@ -432,3 +432,41 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; }
 }
+
+/* ============================================================
+   COMPARTIR / QR
+   ============================================================ */
+.share-btn { margin-top: -4px; }
+
+.qr-modal {
+  position: fixed; inset: 0; z-index: 9999; display: none;
+  align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(circle at center, rgba(12,2,34,.9), rgba(0,0,0,.95));
+  backdrop-filter: blur(6px);
+}
+.qr-modal.show { display: flex; }
+.qr-card {
+  position: relative; width: 100%; max-width: 420px; text-align: center;
+  background: linear-gradient(180deg, #2a1852, #1c1038);
+  border: 1px solid var(--line); border-radius: 24px; padding: 34px 30px 28px;
+  box-shadow: var(--shadow);
+}
+.qr-close {
+  position: absolute; top: 14px; right: 14px; width: 38px; height: 38px;
+  border-radius: 50%; border: 1px solid var(--line); background: rgba(255,255,255,.06);
+  color: var(--ink); font-size: 1rem; cursor: pointer; z-index: 2;
+}
+.qr-close:hover { background: rgba(255,255,255,.14); }
+.qr-title { font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.4rem; color: var(--arcane-lt); margin-bottom: 20px; }
+.qr-box {
+  width: min(74vw, 300px); height: min(74vw, 300px); margin: 0 auto 18px; padding: 16px;
+  background: #fff; border-radius: 18px; display: grid; place-items: center;
+  box-shadow: 0 12px 34px -8px rgba(0,0,0,.6);
+}
+.qr-box svg, .qr-box img { width: 100% !important; height: 100% !important; display: block; }
+.qr-url {
+  font-family: 'Nunito'; font-weight: 800; font-size: .85rem; color: var(--gold);
+  word-break: break-all; background: rgba(0,0,0,.3); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 12px; margin-bottom: 12px;
+}
+.qr-note { font-size: .78rem; color: var(--muted); line-height: 1.6; }
