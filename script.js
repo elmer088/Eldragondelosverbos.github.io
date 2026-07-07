@@ -549,7 +549,7 @@ $('btn-restart').addEventListener('click', () => {
    │  Debe empezar con https://  y ser una página pública.       │
    │  (Un archivo local de tu compu NO sirve para el QR.)        │
    └────────────────────────────────────────────────────────────┘ */
-const URL_DEL_JUEGO = "https://github.com/elmer088/El-drag-n-de-los-verbos.git";
+const URL_DEL_JUEGO = "https://elmer088.github.io/Eldragondelosverbos.github.io/";
 
 const qrModal = $('qr-modal');
 const qrBox = $('qr-box');
