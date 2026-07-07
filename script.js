@@ -22,7 +22,7 @@ const EFECTOS = [AUDIO.click, AUDIO.correct, AUDIO.crit, AUDIO.wrong, AUDIO.como
 const TODOS = [...MUSICAS, ...EFECTOS];
 
 // VOLUMENES (ajusta aqui)
-MUSICAS.forEach(m => { if (m) m.volume = 0.45; });
+MUSICAS.forEach(m => { if (m) m.volume = 0.1; });
 EFECTOS.forEach(s => { if (s) s.volume = 0.7; });
 
 const CLICK_MAX_MS = 450; // corta el sfx de clic por si el archivo asignado es largo
